@@ -21,19 +21,20 @@ const makeTableFrekuensi = (data, tableName) => {
   for (let i = 1; i < K; i++) {
     const minRange = lastMin;
     const maxRange = lastMin + C;
+    const frekuensi = data.filter((e) => e > minRange && e < maxRange).length;
 
     // prettier-ignore
     tableElement[0].innerHTML += 
     `<tr>
       <td>${i}</td>
-      <td>${lastMin}</td>
+      <td>${minRange}</td>
       <td>-</td>
-      <td>${lastMin + C}</td>
-      <td>${data.filter(e => e < lastMin + C)}</td>
+      <td>${maxRange}</td>
+      <td>${frekuensi}</td>
     </tr>`;
 
     lastMin = lastMin + C + 1;
   }
 };
 
-makeTableFrekuensi(dataAntarKedatangan, 'dataAntarKedatangan')
+makeTableFrekuensi(dataAntarKedatangan, 'dataAntarKedatangan');
