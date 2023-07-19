@@ -15,9 +15,6 @@
       });
     };
 
-    const dataAntarKedatangan = convertCSVToArray('dataAntarKedatangan.csv');
-    const dataLamaPelanggan = convertCSVToArray('dataLamaPelanggan.csv');
-
     const makeTableFrekuensi = async (tableName) => {
       const data = await convertCSVToArray(tableName + '.csv');
       const n = data.length;
@@ -50,8 +47,6 @@
         };
 
         allTabelInObjArray.push(tabelInObj);
-
-        // console.table(tabelInObj);
 
         // prettier-ignore
         tableElement[0].innerHTML +=
@@ -141,7 +136,7 @@
         const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos(2 * Math.PI * Ui1 * (Math.PI / 180));
         const hasil = myu + simpanganBaku * Z;
 
-        if (i !== 0) kumulatif += hasil;;
+        if (i !== 0) kumulatif += hasil;
 
         const resultI = {
           i: i + 1,
@@ -229,6 +224,23 @@
 
     const queue = [];
 
+    const getQueue = (lamaMenukar, waktuSelesai, i) => {
+      if (queue.length < 4) {
+        queue.push({ lamaMenukar, waktuSelesai, i, G: lamaMenukar });
+        return queue.length;
+      } else {
+        const min = Math.min.apply(
+          Math,
+          queue.map((e) => e.waktuSelesai)
+        );
+
+        const indexMinValue = queue.map((e) => Number(e.waktuSelesai)).indexOf(min);
+        queue[indexMinValue] = { lamaMenukar, waktuSelesai, i, G: lamaMenukar, E: queue[indexMinValue].waktuSelesai };
+
+        return indexMinValue + 1;
+      }
+    };
+
     // Masukkan seluruh perhitungan diatas ke tabel simulasi
     for (let i = 0; i < bilanganAcakLCGAntarKedatangan.length; i++) {
       let node = `
@@ -259,8 +271,23 @@
       <td>${bilanganAcakMRNGLamaPelanggan[i].hasil.toFixed(0)}</td>
       <td>60</td>
       <td>${(bilanganAcakLCGAntarKedatangan[i].kumulatif + bilanganAcakMRNGLamaPelanggan[i].hasil + 60).toFixed(0)}</td>
+      <td>${getQueue(
+        Number(bilanganAcakMRNGLamaPelanggan[i].hasil.toFixed(0)),
+        Number(bilanganAcakLCGAntarKedatangan[i].kumulatif + bilanganAcakMRNGLamaPelanggan[i].hasil + 60).toFixed(0),
+        i
+      )}</td>
+      <td>${(() => {
+        const q = queue.find((e) => e.i === i);
+        if (q.G > q.E) return q.G - q.E;
+        return 0;
+      })()}</td>
+      <td>${(() => {
+        const q = queue.find((e) => e.i === i);
+        if (q.E > q.G) return q.E - q.G;
+        return 0;
+      })()}</td>
       </tr>`;
-      
+
       document.querySelector('#tabelSimulasi').innerHTML += node;
     }
   } catch (err) {
