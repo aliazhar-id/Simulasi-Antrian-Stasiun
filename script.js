@@ -20,9 +20,7 @@
 
     const makeTableFrekuensi = async (tableName) => {
       const data = await convertCSVToArray(tableName + '.csv');
-      // console.log(data);
       const n = data.length;
-      console.log(n);
       const K = Math.round(1 + 3.3 * Math.log10(n));
       const max = Math.max(...data);
       const min = Math.min(...data);
@@ -138,11 +136,16 @@
       for (let i = 0; i < n; i++) {
         const Zi = (pengali * nilaiAwal + inkremen) % modulus;
         const Ui = Zi / modulus;
+        const Ui1 = ((pengali * Zi + inkremen) % modulus) / modulus;
+        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos((2 * Math.PI * Ui1) * (Math.PI / 180));
+        const hasil = myu + (simpanganBaku * Z);
 
         const resultI = {
           i: i + 1,
           bilAcak: Number(Ui),
-          hasil: 0,
+          Ui1,
+          Z,
+          hasil,
         };
 
         resultLCG.push(resultI);
@@ -157,14 +160,20 @@
 
       for (let i = 0; i < n; i++) {
         const Zi = (pengali * nilaiAwal) % modulus;
-        const Ui = (Zi / modulus);
-    
+        const Ui = Zi / modulus;
+        const Ui1 = ((pengali * Zi) % modulus) / modulus;
+        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos((2 * Math.PI * Ui1) * (Math.PI / 180));
+        const hasil = Number(myu) + (simpanganBaku * Z);
+        console.log(myu, simpanganBaku);
+
         const resultI = {
           i: i + 1,
           bilAcak: Number(Ui),
-          result: 0,
+          Ui1,
+          Z,
+          hasil,
         };
-    
+
         resultMRNG.push(resultI);
         nilaiAwal = Zi;
       }
@@ -172,23 +181,51 @@
       return resultMRNG;
     };
 
+    const dataFrekuensiAntarKedatangan = tableFrekuensiAntarKedatanganObj.find((e) => e.isData);
+    const bilanganAcakLCGAntarKedatangan = makeBilanganAcakLCG(
+      10,
+      1104015,
+      1537,
+      13,
+      79,
+      dataFrekuensiAntarKedatangan.myu,
+      dataFrekuensiAntarKedatangan.simpanganBaku
+    );
 
-    const dataFrekuensiAntarKedatangan = tableFrekuensiAntarKedatanganObj.find(e => e.isData);
-    const bilanganAcakLCGAntarKedatangan = makeBilanganAcakLCG(10, 1104015, 1537, 13, 79, dataFrekuensiAntarKedatangan.myu, dataAntarKedatangan.simpanganBaku);
-    
-    const dataFrekuensiLamaPelanggan = tableFrekuensiLamaPelangganObj.find(e => e.isData);
-    const bilanganAcakMRNGLamaPelanggan = makeBilanganAcakLCG(10, 1104015, 1537, 13, dataFrekuensiLamaPelanggan.myu, dataLamaPelanggan.simpanganBaku);
+    const dataFrekuensiLamaPelanggan = tableFrekuensiLamaPelangganObj.find((e) => e.isData);
+    const bilanganAcakMRNGLamaPelanggan = makeBilanganAcakMRNG(
+      10,
+      1104015,
+      1537,
+      13,
+      dataFrekuensiLamaPelanggan.myu,
+      dataFrekuensiLamaPelanggan.simpanganBaku
+    );
 
     const elementTabelLCGAntarKedatangan = document.querySelector('.tabelLCG');
     const elementTabelMRNGLamaPelanggan = document.querySelector('.tabelMRNG');
 
-    bilanganAcakLCGAntarKedatangan.forEach(e => {
-      elementTabelLCGAntarKedatangan.innerHTML += `<tr><td>${e.i}</td><td>${e.bilAcak.toFixed(4)}</td><td>${e.hasil}</td></tr>`
-    })
+    bilanganAcakLCGAntarKedatangan.forEach((e) => {
+      elementTabelLCGAntarKedatangan.innerHTML += `
+      <tr>
+      <td>${e.i}</td>
+      <td>${e.bilAcak.toFixed(4)}</td>
+      <td>${e.hasil.toFixed(0)}</td>
+      </tr>`;
+    });
 
-    bilanganAcakMRNGLamaPelanggan.forEach(e => {
-      elementTabelMRNGLamaPelanggan.innerHTML += `<tr><td>${e.i}</td><td>${e.bilAcak.toFixed(4)}</td><td>${e.hasil}</td></tr>`
-    })
+    bilanganAcakMRNGLamaPelanggan.forEach((e) => {
+      elementTabelMRNGLamaPelanggan.innerHTML += `
+      <tr>
+      <td>${e.i}</td>
+      <td>${e.bilAcak.toFixed(4)}</td>
+      <td>${e.hasil.toFixed(0)}</td>
+      </tr>`;
+    });
+
+
+    // Masukkan seluruh perhitungan diatas ke tabel simulasi
+    // for
   } catch (err) {
     console.log(err);
   }
