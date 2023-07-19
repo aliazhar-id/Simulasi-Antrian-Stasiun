@@ -42,9 +42,25 @@ const makeTableFrekuensi = async (tableName) => {
   let frekuensiKumulatif = 0;
 
   for (let i = 1; i <= K; i++) {
-    const minRange = lastMin;
+    const tabelInJson = {
+      no: i,
+      kelasInterval: {
+        min: lastMin,
+        max: lastMin + C,
+      },
+      frekuensi: data.filter((e) => e >= lastMin && e <= lastMin + C).length,
+      frekuensiKumulatif: frekuensiKumulatif + data.filter((e) => e >= lastMin && e <= lastMin + C).length,
+      lcl: lastMin,
+      ucl: lastMin + C,
+      cm: 0.5 * (lastMin + lastMin + C),
+      ficm: (data.filter((e) => e >= lastMin && e <= lastMin + C).length) * (0.5 * (lastMin + lastMin + C)),
+    };
+
+    console.table(tabelInJson);
+
+    // const minRange = lastMin;
     // const maxRange = lastMin + C - 1;
-    const maxRange = lastMin + C;
+    // const maxRange = lastMin + C;
     // console.log(C);
     // console.log(
     //   data
@@ -52,29 +68,33 @@ const makeTableFrekuensi = async (tableName) => {
     //     .sort()
     //     .reverse()
     // );
-    const frekuensi = data.filter((e) => e >= minRange && e <= maxRange).length;
 
-    const lcl = minRange;
-    const ucl = maxRange;
-    const cm = 0.5 * (lcl + ucl);
-    const ficm = frekuensi * cm;
+
+    // const frekuensi = data.filter((e) => e >= minRange && e <= maxRange).length;
+
+    // const lcl = minRange;
+    // const ucl = maxRange;
+    // const cm = 0.5 * (lcl + ucl);
+    // const ficm = frekuensi * cm;
+
+    
     // prettier-ignore
     tableElement[0].innerHTML +=
     `<tr>
-      <td>${i}</td>
-      <td>${minRange}</td>
+      <td>${tabelInJson.no}</td>
+      <td>${tabelInJson.kelasInterval.min}</td>
       <td>-</td>
-      <td>${maxRange}</td>
-      <td>${frekuensi}</td>
-      <td>${frekuensiKumulatif + frekuensi}</td>
-      <td>${lcl}</td>
-      <td>${ucl}</td>
-      <td>${cm}</td>
-      <td class="ficm">${ficm}</td>
+      <td>${tabelInJson.kelasInterval.max}</td>
+      <td>${tabelInJson.frekuensi}</td>
+      <td>${tabelInJson.frekuensiKumulatif}</td>
+      <td>${tabelInJson.lcl}</td>
+      <td>${tabelInJson.ucl}</td>
+      <td>${tabelInJson.cm}</td>
+      <td class="ficm">${tabelInJson.ficm}</td>
     </tr>`;
 
-    frekuensiKumulatif += frekuensi;
-    lastMin = maxRange + 1;
+    frekuensiKumulatif += tabelInJson.frekuensi;
+    lastMin = tabelInJson.kelasInterval.max + 1;
   }
 
   const sumFiCm = Array.from(tableElement[0].getElementsByClassName('ficm'))
@@ -85,13 +105,13 @@ const makeTableFrekuensi = async (tableName) => {
   tableElement[0].innerHTML +=
     `<tr>
       <td colspan="4">N</td>
-      <td>${frekuensiKumulatif}</td>
+      <td>${n}</td>
       <td colspan="4">∑ fi.CM</td>
       <td>${sumFiCm}</td>
     </tr>
     <tr>
       <td colspan="9">μ</td>
-      <td>${sumFiCm / frekuensiKumulatif}</td>
+      <td>${sumFiCm / n}</td>
     </tr>`;
 };
 
