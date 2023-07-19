@@ -4,15 +4,6 @@ const convertCSVToArray = async (filename) => {
       .then((response) => response.text())
       .then((data) => {
         const rows = data.split('\n');
-        // const dataArray = [];
-
-        // rows.forEach((row) => {
-        //   const columns = row.split(';');
-        //   dataArray.push(columns);
-        // });
-
-        // console.log(dataArray);
-        // console.log(rows);
         resolve(rows[0].split(';'));
       })
       .catch((error) => {
@@ -41,8 +32,10 @@ const makeTableFrekuensi = async (tableName) => {
   let lastMin = min;
   let frekuensiKumulatif = 0;
 
+  const allTabelInObjArray = [];
+
   for (let i = 1; i <= K; i++) {
-    const tabelInJson = {
+    const tabelInObj = {
       no: i,
       kelasInterval: {
         min: lastMin,
@@ -53,53 +46,39 @@ const makeTableFrekuensi = async (tableName) => {
       lcl: lastMin,
       ucl: lastMin + C,
       cm: 0.5 * (lastMin + lastMin + C),
-      ficm: (data.filter((e) => e >= lastMin && e <= lastMin + C).length) * (0.5 * (lastMin + lastMin + C)),
+      ficm: data.filter((e) => e >= lastMin && e <= lastMin + C).length * (0.5 * (lastMin + lastMin + C)),
     };
 
-    console.table(tabelInJson);
+    allTabelInObjArray.push(tabelInObj);
 
-    // const minRange = lastMin;
-    // const maxRange = lastMin + C - 1;
-    // const maxRange = lastMin + C;
-    // console.log(C);
-    // console.log(
-    //   data
-    //     .filter((e) => e >= minRange && e <= maxRange)
-    //     .sort()
-    //     .reverse()
-    // );
+    // console.table(tabelInObj);
 
-
-    // const frekuensi = data.filter((e) => e >= minRange && e <= maxRange).length;
-
-    // const lcl = minRange;
-    // const ucl = maxRange;
-    // const cm = 0.5 * (lcl + ucl);
-    // const ficm = frekuensi * cm;
-
-    
     // prettier-ignore
     tableElement[0].innerHTML +=
     `<tr>
-      <td>${tabelInJson.no}</td>
-      <td>${tabelInJson.kelasInterval.min}</td>
+      <td>${tabelInObj.no}</td>
+      <td>${tabelInObj.kelasInterval.min}</td>
       <td>-</td>
-      <td>${tabelInJson.kelasInterval.max}</td>
-      <td>${tabelInJson.frekuensi}</td>
-      <td>${tabelInJson.frekuensiKumulatif}</td>
-      <td>${tabelInJson.lcl}</td>
-      <td>${tabelInJson.ucl}</td>
-      <td>${tabelInJson.cm}</td>
-      <td class="ficm">${tabelInJson.ficm}</td>
+      <td>${tabelInObj.kelasInterval.max}</td>
+      <td>${tabelInObj.frekuensi}</td>
+      <td>${tabelInObj.frekuensiKumulatif}</td>
+      <td>${tabelInObj.lcl}</td>
+      <td>${tabelInObj.ucl}</td>
+      <td>${tabelInObj.cm}</td>
+      <td class="ficm">${tabelInObj.ficm}</td>
     </tr>`;
 
-    frekuensiKumulatif += tabelInJson.frekuensi;
-    lastMin = tabelInJson.kelasInterval.max + 1;
+    frekuensiKumulatif += tabelInObj.frekuensi;
+    lastMin = tabelInObj.kelasInterval.max + 1;
   }
 
   const sumFiCm = Array.from(tableElement[0].getElementsByClassName('ficm'))
     .map((e) => Number(e.innerHTML))
     .reduce((sum, value) => (sum += value), 0);
+
+  const myu = sumFiCm / n;
+
+  allTabelInObjArray.push({ isData: true, sumFiCm, myu });
 
   // prettier-ignore
   tableElement[0].innerHTML +=
@@ -108,11 +87,42 @@ const makeTableFrekuensi = async (tableName) => {
       <td>${n}</td>
       <td colspan="4">∑ fi.CM</td>
       <td>${sumFiCm}</td>
+      <td colspan="2">∑ Fi . (CM - μ)^2</td>
+      <td class="sumFiCmMinMyuPower2"></td>
     </tr>
     <tr>
       <td colspan="9">μ</td>
-      <td>${sumFiCm / n}</td>
+      <td>${myu}</td>
+      <td colspan="2">σ</td>
+      <td class="simpanganBaku"></td>
     </tr>`;
+
+  allTabelInObjArray.filter((e) => e.no).forEach((e) => (e.cmMinMyu = e.cm - allTabelInObjArray.find((e) => e.myu).myu));
+  allTabelInObjArray.filter((e) => e.no).forEach((e) => (e.cmMinMyuPower2 = Math.pow(e.cmMinMyu, 2)));
+  allTabelInObjArray.filter((e) => e.no).forEach((e) => (e.fiCmMinMyuPower2 = e.frekuensi * e.cmMinMyuPower2));
+  allTabelInObjArray
+    .filter((e) => e.isData)
+    .forEach(
+      (e) =>
+        (e.sumFiCmMinMyuPower2 = allTabelInObjArray
+          .filter((e) => e.no)
+          .map((e) => e.fiCmMinMyuPower2)
+          .reduce((sum, value) => (sum += value), 0))
+    );
+
+  allTabelInObjArray.filter((e) => e.isData)[0].simpanganBaku = allTabelInObjArray.filter((e) => e.isData)[0].sumFiCmMinMyuPower2 / n;
+
+  Array.from(tableElement[0].getElementsByClassName('ficm')).forEach((e, i) => {
+    let node = '';
+    node += `<td>${allTabelInObjArray[i].cmMinMyu.toFixed(4)}</td>`;
+    node += `<td>${allTabelInObjArray[i].cmMinMyuPower2.toFixed(4)}</td>`;
+    node += `<td>${allTabelInObjArray[i].fiCmMinMyuPower2.toFixed(4)}</td>`;
+
+    e.parentNode.innerHTML += node;
+  });
+
+  tableElement[0].getElementsByClassName('sumFiCmMinMyuPower2')[0].innerText = allTabelInObjArray.filter((e) => e.isData)[0].sumFiCmMinMyuPower2;
+  tableElement[0].getElementsByClassName('simpanganBaku')[0].innerText = allTabelInObjArray.filter((e) => e.isData)[0].simpanganBaku.toFixed(4);
 };
 
 makeTableFrekuensi('dataAntarKedatangan');
