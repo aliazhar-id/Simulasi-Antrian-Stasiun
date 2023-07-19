@@ -182,21 +182,21 @@
 
     const dataFrekuensiAntarKedatangan = tableFrekuensiAntarKedatanganObj.find((e) => e.isData);
     const bilanganAcakLCGAntarKedatangan = makeBilanganAcakLCG(
-      25,
-      1104015,
-      1537,
-      13,
-      79,
+      25, // total simulasi
+      1104015, // nilai awal
+      1537, // modulus
+      13, // pengali
+      79, // inkremen
       dataFrekuensiAntarKedatangan.myu,
       dataFrekuensiAntarKedatangan.simpanganBaku
     );
 
     const dataFrekuensiLamaPelanggan = tableFrekuensiLamaPelangganObj.find((e) => e.isData);
     const bilanganAcakMRNGLamaPelanggan = makeBilanganAcakMRNG(
-      25,
-      1104015,
-      1537,
-      13,
+      25, // total simulasi
+      1104015, // nilai awal
+      1537, // modulus
+      13, // pengali
       dataFrekuensiLamaPelanggan.myu,
       dataFrekuensiLamaPelanggan.simpanganBaku
     );
