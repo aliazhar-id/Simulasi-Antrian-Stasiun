@@ -132,13 +132,16 @@
 
     const makeBilanganAcakLCG = (n, nilaiAwal, modulus, pengali, inkremen, myu, simpanganBaku) => {
       const resultLCG = [];
+      let kumulatif = 0;
 
       for (let i = 0; i < n; i++) {
         const Zi = (pengali * nilaiAwal + inkremen) % modulus;
         const Ui = Zi / modulus;
         const Ui1 = ((pengali * Zi + inkremen) % modulus) / modulus;
-        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos((2 * Math.PI * Ui1) * (Math.PI / 180));
-        const hasil = myu + (simpanganBaku * Z);
+        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos(2 * Math.PI * Ui1 * (Math.PI / 180));
+        const hasil = myu + simpanganBaku * Z;
+
+        if (i !== 0) kumulatif += hasil;;
 
         const resultI = {
           i: i + 1,
@@ -146,6 +149,7 @@
           Ui1,
           Z,
           hasil,
+          kumulatif: kumulatif,
         };
 
         resultLCG.push(resultI);
@@ -162,8 +166,8 @@
         const Zi = (pengali * nilaiAwal) % modulus;
         const Ui = Zi / modulus;
         const Ui1 = ((pengali * Zi) % modulus) / modulus;
-        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos((2 * Math.PI * Ui1) * (Math.PI / 180));
-        const hasil = Number(myu) + (simpanganBaku * Z);
+        const Z = Math.pow(-2 * Math.log(Ui), 0.5) * Math.cos(2 * Math.PI * Ui1 * (Math.PI / 180));
+        const hasil = Number(myu) + simpanganBaku * Z;
         console.log(myu, simpanganBaku);
 
         const resultI = {
@@ -183,7 +187,7 @@
 
     const dataFrekuensiAntarKedatangan = tableFrekuensiAntarKedatanganObj.find((e) => e.isData);
     const bilanganAcakLCGAntarKedatangan = makeBilanganAcakLCG(
-      10,
+      25,
       1104015,
       1537,
       13,
@@ -194,7 +198,7 @@
 
     const dataFrekuensiLamaPelanggan = tableFrekuensiLamaPelangganObj.find((e) => e.isData);
     const bilanganAcakMRNGLamaPelanggan = makeBilanganAcakMRNG(
-      10,
+      25,
       1104015,
       1537,
       13,
@@ -223,9 +227,42 @@
       </tr>`;
     });
 
+    const queue = [];
 
     // Masukkan seluruh perhitungan diatas ke tabel simulasi
-    // for
+    for (let i = 0; i < bilanganAcakLCGAntarKedatangan.length; i++) {
+      let node = `
+      <tr>
+      <td>${i}</td>
+      <td>${bilanganAcakLCGAntarKedatangan[i].bilAcak.toFixed(4)}</td>
+      <td>${bilanganAcakMRNGLamaPelanggan[i].bilAcak.toFixed(4)}</td>`;
+
+      if (i === 0) {
+        node += `
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        </tr>`;
+
+        document.querySelector('#tabelSimulasi').innerHTML += node;
+        continue;
+      }
+
+      node += `
+      <td>${bilanganAcakLCGAntarKedatangan[i].hasil.toFixed(0)}</td>
+      <td>${bilanganAcakLCGAntarKedatangan[i].kumulatif.toFixed(0)}</td>
+      <td>${bilanganAcakMRNGLamaPelanggan[i].hasil.toFixed(0)}</td>
+      <td>60</td>
+      <td>${(bilanganAcakLCGAntarKedatangan[i].kumulatif + bilanganAcakMRNGLamaPelanggan[i].hasil + 60).toFixed(0)}</td>
+      </tr>`;
+      
+      document.querySelector('#tabelSimulasi').innerHTML += node;
+    }
   } catch (err) {
     console.log(err);
   }
