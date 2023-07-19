@@ -226,7 +226,7 @@
 
     const getQueue = (lamaMenukar, waktuSelesai, i) => {
       if (queue.length < 4) {
-        queue.push({ lamaMenukar, waktuSelesai, i, G: lamaMenukar });
+        queue.push({ lamaMenukar, waktuSelesai, i, G: waktuSelesai });
         return queue.length;
       } else {
         const min = Math.min.apply(
@@ -235,7 +235,7 @@
         );
 
         const indexMinValue = queue.map((e) => Number(e.waktuSelesai)).indexOf(min);
-        queue[indexMinValue] = { lamaMenukar, waktuSelesai, i, G: lamaMenukar, E: queue[indexMinValue].waktuSelesai };
+        queue[indexMinValue] = { lamaMenukar, waktuSelesai, i, G: waktuSelesai, E: Number(queue[indexMinValue].lamaMenukar) };
 
         return indexMinValue + 1;
       }
