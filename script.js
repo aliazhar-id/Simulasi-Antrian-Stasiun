@@ -107,7 +107,7 @@
               .reduce((sum, value) => (sum += value), 0))
         );
 
-      allTabelInObjArray.filter((e) => e.isData)[0].simpanganBaku = allTabelInObjArray.filter((e) => e.isData)[0].sumFiCmMinMyuPower2 / n;
+      allTabelInObjArray.filter((e) => e.isData)[0].simpanganBaku = Math.sqrt(allTabelInObjArray.filter((e) => e.isData)[0].sumFiCmMinMyuPower2 / n);
 
       Array.from(tableElement[0].getElementsByClassName('ficm')).forEach((e, i) => {
         let node = '';
