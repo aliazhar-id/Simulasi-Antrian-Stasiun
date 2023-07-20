@@ -1,5 +1,6 @@
 (async () => {
   try {
+    // Function untuk mengambil file csv dan konversi ke bentuk array agar bisa diolah
     const convertCSVToArray = async (filename) => {
       return new Promise((resolve, reject) => {
         fetch(filename)
@@ -15,6 +16,7 @@
       });
     };
 
+    // Function untuk membuat table frekuensi dalam bentuk array object, dan menyisipkannya ke table html
     const makeTableFrekuensi = async (tableName) => {
       const data = await convertCSVToArray(tableName + '.csv');
       const n = data.length;
@@ -125,6 +127,7 @@
     const tableFrekuensiAntarKedatanganObj = await makeTableFrekuensi('dataAntarKedatangan');
     const tableFrekuensiLamaPelangganObj = await makeTableFrekuensi('dataLamaPelanggan');
 
+    // Function membuat bilagan acak LCG
     const makeBilanganAcakLCG = (n, nilaiAwal, modulus, pengali, inkremen, myu, simpanganBaku) => {
       const resultLCG = [];
       let kumulatif = 0;
@@ -154,6 +157,7 @@
       return resultLCG;
     };
 
+    // Function untuk membuat bilagan acak MRNG
     const makeBilanganAcakMRNG = (n, nilaiAwal, modulus, pengali, myu, simpanganBaku) => {
       const resultMRNG = [];
 
@@ -204,6 +208,7 @@
     const elementTabelLCGAntarKedatangan = document.querySelector('.tabelLCG');
     const elementTabelMRNGLamaPelanggan = document.querySelector('.tabelMRNG');
 
+    // Insert bilangan acak LCG ke table html
     bilanganAcakLCGAntarKedatangan.forEach((e) => {
       elementTabelLCGAntarKedatangan.innerHTML += `
       <tr>
@@ -213,6 +218,7 @@
       </tr>`;
     });
 
+    // Insert bilangan acak MRNG ke table html
     bilanganAcakMRNGLamaPelanggan.forEach((e) => {
       elementTabelMRNGLamaPelanggan.innerHTML += `
       <tr>
@@ -222,8 +228,8 @@
       </tr>`;
     });
 
+    // Function untuk menghitung antrian pelanggan ke mesin
     const queue = [];
-
     const getQueue = (lamaMenukar, waktuSelesai, i) => {
       if (queue.length < 4) {
         queue.push({ lamaMenukar, waktuSelesai, i, G: waktuSelesai });
@@ -241,7 +247,7 @@
       }
     };
 
-    // Masukkan seluruh perhitungan diatas ke tabel simulasi
+    // Memasukkan seluruh perhitungan diatas ke tabel simulasi
     for (let i = 0; i < bilanganAcakLCGAntarKedatangan.length; i++) {
       let node = `
       <tr>
@@ -275,7 +281,7 @@
         Number(bilanganAcakMRNGLamaPelanggan[i].hasil.toFixed(0)),
         Number(bilanganAcakLCGAntarKedatangan[i].kumulatif + bilanganAcakMRNGLamaPelanggan[i].hasil + 60).toFixed(0),
         i
-      )}</td>
+      )}</td> 
       <td>${(() => {
         const q = queue.find((e) => e.i === i);
         if (q.G > q.E) return q.G - q.E;
